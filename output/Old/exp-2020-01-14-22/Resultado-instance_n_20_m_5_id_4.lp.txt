@@ -1,0 +1,297 @@
+Grasp exp. instance_n_20_m_5_id_4.lp tipoLifted 0 szPool 5 nIteration 50 alpha 0.4 
+Academic license - for non-commercial use only
+Read LP format model from file ../input/instancesGenerated/instance_n_20_m_5_id_4.lp
+Reading time = 0.00 seconds
+: 5 rows, 20 columns, 100 nonzeros
+Optimize a model with 5 rows, 20 columns and 100 nonzeros
+Variable types: 0 continuous, 20 integer (20 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+01]
+  Objective range  [1e+00, 1e+01]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [5e+01, 6e+01]
+Found heuristic solution: objective 48.0000000
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds
+Thread count was 1 (of 8 available processors)
+
+Solution count 1: 48 
+No other solutions better than 0
+
+Solution limit reached
+Best objective 4.800000000000e+01, best bound -, gap -
+C_1:	 3.00 x_1  = 0.000000 + 1.00 x_2  = 1.000000 + 5.00 x_3  = 0.000000 + 2.00 x_4  = 0.000000 + 6.00 x_5  = 1.000000 + 4.00 x_6  = 0.000000 + 7.00 x_7  = 1.000000 + 10.00 x_8  = 1.000000 + 2.00 x_9  = 0.324675 + 2.00 x_10  = 1.000000 + 4.00 x_11  = 1.000000 + 5.00 x_12  = 0.467532 + 10.00 x_13  = 1.000000 + 8.00 x_14  = 0.000000 + 8.00 x_15  = 0.000000 + 4.00 x_16  = 1.000000 + 10.00 x_17  = 0.000000 + 9.00 x_18  = 0.000000 + 5.00 x_19  = 0.000000 + 4.00 x_20  = 1.000000 <= 54.00
+C_2:	 8.00 x_1  = 0.000000 + 6.00 x_2  = 1.000000 + 6.00 x_3  = 0.000000 + 7.00 x_4  = 0.000000 + 1.00 x_5  = 1.000000 + 7.00 x_6  = 0.000000 + 6.00 x_7  = 1.000000 + 5.00 x_8  = 1.000000 + 8.00 x_9  = 0.324675 + 10.00 x_10  = 1.000000 + 10.00 x_11  = 1.000000 + 3.00 x_12  = 0.467532 + 10.00 x_13  = 1.000000 + 6.00 x_14  = 0.000000 + 4.00 x_15  = 0.000000 + 8.00 x_16  = 1.000000 + 10.00 x_17  = 0.000000 + 2.00 x_18  = 0.000000 + 7.00 x_19  = 0.000000 + 3.00 x_20  = 1.000000 <= 63.00
+C_3:	 5.00 x_1  = 0.000000 + 3.00 x_2  = 1.000000 + 10.00 x_3  = 0.000000 + 6.00 x_4  = 0.000000 + 10.00 x_5  = 1.000000 + 7.00 x_6  = 0.000000 + 1.00 x_7  = 1.000000 + 2.00 x_8  = 1.000000 + 7.00 x_9  = 0.324675 + 5.00 x_10  = 1.000000 + 5.00 x_11  = 1.000000 + 6.00 x_12  = 0.467532 + 10.00 x_13  = 1.000000 + 3.00 x_14  = 0.000000 + 3.00 x_15  = 0.000000 + 3.00 x_16  = 1.000000 + 9.00 x_17  = 0.000000 + 10.00 x_18  = 0.000000 + 7.00 x_19  = 0.000000 + 9.00 x_20  = 1.000000 <= 60.00
+C_4:	 10.00 x_1  = 0.000000 + 6.00 x_2  = 1.000000 + 3.00 x_3  = 0.000000 + 9.00 x_4  = 0.000000 + 1.00 x_5  = 1.000000 + 8.00 x_6  = 0.000000 + 8.00 x_7  = 1.000000 + 2.00 x_8  = 1.000000 + 9.00 x_9  = 0.324675 + 5.00 x_10  = 1.000000 + 7.00 x_11  = 1.000000 + 5.00 x_12  = 0.467532 + 7.00 x_13  = 1.000000 + 8.00 x_14  = 0.000000 + 2.00 x_15  = 0.000000 + 8.00 x_16  = 1.000000 + 6.00 x_17  = 0.000000 + 2.00 x_18  = 0.000000 + 9.00 x_19  = 0.000000 + 2.00 x_20  = 1.000000 <= 58.00
+C_5:	 6.00 x_1  = 0.000000 + 6.00 x_2  = 1.000000 + 8.00 x_3  = 0.000000 + 7.00 x_4  = 0.000000 + 8.00 x_5  = 1.000000 + 2.00 x_6  = 0.000000 + 9.00 x_7  = 1.000000 + 8.00 x_8  = 1.000000 + 1.00 x_9  = 0.324675 + 7.00 x_10  = 1.000000 + 6.00 x_11  = 1.000000 + 10.00 x_12  = 0.467532 + 2.00 x_13  = 1.000000 + 10.00 x_14  = 0.000000 + 1.00 x_15  = 0.000000 + 5.00 x_16  = 1.000000 + 7.00 x_17  = 0.000000 + 8.00 x_18  = 0.000000 + 8.00 x_19  = 0.000000 + 7.00 x_20  = 1.000000 <= 63.00
+Solution initial: 78.025974 
+Number Constraints Used in Cover:5
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:11
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:16
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:23
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:27
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:37
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:49
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:54
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:68
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:80
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:92
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:102
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:118
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:127
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:138
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:144
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:154
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:159
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:167
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:174
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:180
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:189
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:193
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:208
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:224
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:239
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:254
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:268
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:281
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:288
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:301
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:318
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:325
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:339
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:351
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:366
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:377
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:387
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:400
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:410
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:421
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:436
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:452
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:465
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:475
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:490
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:506
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:520
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:538
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:560
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:581
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:604
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:624
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:637
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:658
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:688
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:708
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:728
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:746
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:771
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:790
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:808
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:824
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:841
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:864
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:882
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Constraints Used in Cover:903
+GRASP Method!
+Number cuts repeat: 0
+value: 78.025974
+Number Cuts Final: 916
