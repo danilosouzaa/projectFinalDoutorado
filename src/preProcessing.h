@@ -3,6 +3,8 @@
 #include <string.h>
 #include "lp.h"
 #include "defs.h"
+#include <omp.h>
+#include <sys/time.h>
 
 char **createNameVariablesInitial(LinearProgramPtr lp); //read name variables and create struct with name
 
@@ -31,4 +33,6 @@ TCoefficients cutMaxDivisorCommonVector(TCoefficients coefs[], TNumberVariables 
 TCoefficients cutMaxDivisorCommonRec(TCoefficients m, TCoefficients n);
 
 int verifyRepeatCuts(constraintsReal *constraintsOriginal, int cutOriginal, int cutCreate);
+
+double fRand(double fMin, double fMax);
 

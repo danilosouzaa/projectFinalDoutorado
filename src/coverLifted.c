@@ -370,18 +370,36 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
     else
     {
         int *auxSolution = (int *)malloc(sizeof(int) * sz);
+        memcpy(auxSolution, solution, sizeof(int) * sz);
         while (ite < numberIteration)
-        {
-            memcpy(auxSolution, solution, sizeof(int) * sz);
-            solution = localSearch(solution, sz, constraintsSmall, precision, constraint);
+        {   
             if (verifySolutionCoverMinimal(solution, constraintsSmall, constraint) == 1)
             {
-                copyAndVerifyPoolSolution(solution, sz, poolSolution, &nPoolSolution);
+                int *solFinalTemp;
+                cutCover *coverTemp = CopyCutToCover(constraintsSmall);
+                if (typeLifted == 0)
+                {
+                    solFinalTemp = LCIAdam(solution, coverTemp, constraint);
+                }
+                else
+                {
+                    solFinalTemp = LCIBallas(solution, coverTemp, constraint);
+                }
+                if (verifyViolationGreedy(solFinalTemp, constraintsSmall, constraint, precision) == 1)
+                {
+                   copyAndVerifyPoolSolution(solution, sz, poolSolution, &nPoolSolution);
+                }
+                free(solFinalTemp);
+                free(coverTemp);
+                
             }
             else
             {
                 memcpy(solution, auxSolution, sizeof(int) * sz);
             }
+            memcpy(auxSolution, solution, sizeof(int) * sz);
+            solution = localSearch(solution, sz, constraintsSmall, precision, constraint);
+
             if (nPoolSolution == szPoolCutsMax)
             {
                 break;
@@ -817,12 +835,11 @@ int verifyViolationGreedy(int *solutionFinal, cutSmall *constraitsUsed, int cons
     {
         el = constraitsUsed->Elements[i];
         int aux = (double)solutionFinal[i - constraitsUsed->ElementsConstraints[constraint]];
-
         aux *= (double)constraitsUsed->xAsterisc[el];
         lhs += aux;
     }
     lhs = lhs / (double)precision;
-    if (lhs - 1e-5 > solutionFinal[sz])
+    if (lhs + 1e-5 > solutionFinal[sz])
     {
         return 1;
     }

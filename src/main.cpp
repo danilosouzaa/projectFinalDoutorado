@@ -13,6 +13,8 @@ extern "C"
     //#include "lp.h"
 }
 
+
+
 int main(int argc, const char *argv[]){
     char nameFileInstance[255] = "../input/";
     char nameInst[255] = "";
@@ -80,13 +82,29 @@ int main(int argc, const char *argv[]){
     double _time = 0;
     _time = ((double)timeMax - (omp_get_wtime() - startT));
     int contNoImprovement = 0;
-    while(_time>1){
+    int contSize = 1, testAlpha =0;
+    if(alpha==-1){
+        testAlpha = -1;
+    }
+    if(alpha==-2){
+        testAlpha =-2;
+    }
+    do{
     //------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------
- 
+
         int numberAuxConstraints = constraintsFull->numberConstraints;
+        if(testAlpha == -1){
+            alpha = fRand(0.01,0.5);
+            printf("alpha: %f\n", alpha);
+        }
+        if(testAlpha==-2){
+            alpha = fRand(0.01,0.75);
+            printf("alpha: %f\n", alpha);
+        }
+        
         //execute Separation 
-        if(cc==1){
+        if(cc==1){  
             int *binaryConstraints = returnBinaryConstraints(constraintsFull, typeVariables); // verify constraints can be used fo method
             TNumberConstraints nConstraintsUsed = countConstraintsBinaryUsed(binaryConstraints,constraintsFull->numberConstraints); 
             constraintsReal *constraintsBinary = convertBinaryConstraints(constraintsFull, binaryConstraints, typeVariables, lbVariables, ubVariables);
@@ -170,7 +188,9 @@ int main(int argc, const char *argv[]){
     // Final Time Counting
     //------------------------------------------------------------------------------------
         _time = ((double)timeMax - (omp_get_wtime() - startT));
-    }
+    //}while(_time > 1);
+        contSize++;
+    }while(contSize <= 15);
     printf("Number Cuts Final: %d\n", numberCutsCC);
     //------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------

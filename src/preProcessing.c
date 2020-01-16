@@ -352,3 +352,13 @@ int verifyRepeatCuts(constraintsReal *constraintsOriginal, int cutOriginal, int 
     }
     return 1;
 }
+
+
+double fRand(double fMin, double fMax)
+{
+    struct timeval time;
+    gettimeofday(&time, NULL);
+    srand((time.tv_sec * 1000) + (time.tv_usec / 1000));
+    double f = (double)rand() / RAND_MAX;
+    return fMin + f * (fMax - fMin);
+}

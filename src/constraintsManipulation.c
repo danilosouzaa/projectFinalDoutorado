@@ -727,7 +727,7 @@ double valueViolation(cutCover *cCover, cutSmall *constraintsSmall, TNumberConst
     }
     // printf("rhs %d\n", cCover->rightSide[idCover]);
     violation = lhs - (double)cCover->rightSide[idCover];
-    if(violation < 0.0){
+    if(violation + 1e-5 < 0.0){
         violation = 0.0;
     }
     return violation;
