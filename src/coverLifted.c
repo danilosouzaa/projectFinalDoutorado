@@ -457,7 +457,7 @@ void createInitialCoverGRASP(int *solution, int sz, cutSmall *constraintsSmall, 
             }
         }
 
-        value_best = c_max - alpha * (c_max - c_min);
+        value_best = c_min - alpha * (c_min - c_max);
         test++;
         int *setTemp = (int *)malloc(szAux * sizeof(int));
         int *posTemp = (int *)malloc(szAux * sizeof(int));
