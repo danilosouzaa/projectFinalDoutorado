@@ -330,7 +330,7 @@ int verifyCutsValidatedPerSolutionInteger(constraintsReal *constraintsOriginal, 
     }
     else
     {
-        printf("lhs: %lf rhs: %lf\n", lhs, constraintsOriginal->rightSide[cut]);
+        //printf("lhs: %lf rhs: %lf\n", lhs, constraintsOriginal->rightSide[cut]);
         return 0;
     }
 }
@@ -356,7 +356,7 @@ int *returnBinaryConstraints(constraintsReal *constraintsOriginal, int *typeVari
                 qntBin++;
             }
         }
-        if (qntBin < 3)
+        if (qntBin < 2)
         {
             BinaryConstraints[i] = 0; // restrição que não vale a pena transformar
         }
@@ -716,16 +716,15 @@ int verifyRepeated(constraintsReal *originalConstraints, int posCover)
 double valueViolation(cutCover *cCover, cutSmall *constraintsSmall, TNumberConstraints idCover, TNumberConstraints ogConstraint, int precision){
     int i = 0, el;
     double lhs = 0, violation = 0;
-    int aux;
+    int aux = constraintsSmall->ElementsConstraints[ogConstraint];
     for(i = cCover->ElementsConstraints[idCover];i< cCover->ElementsConstraints[idCover+1];i++){
-            aux = constraintsSmall->ElementsConstraints[ogConstraint];
             el = constraintsSmall->Elements[aux];
             lhs += ((double)cCover->Coefficients[i] )*((double)constraintsSmall->xAsterisc[el]/(double)precision ) ;
-            // printf("x* = %d coef = %d \n", constraintsSmall->xAsterisc[el], constraintsSmall->Coefficients[i]);
-            aux ++;
+      //       printf("x* %d= %d coef = %d \n",el, constraintsSmall->xAsterisc[el], constraintsSmall->Coefficients[i]);
+            aux++;
     //    }
     }
-    // printf("rhs %d\n", cCover->rightSide[idCover]);
+    // printf("lhs %f rhs %d\n",lhs, cCover->rightSide[idCover]);
     violation = lhs - (double)cCover->rightSide[idCover];
     if(violation + 1e-5 < 0.0){
         violation = 0.0;

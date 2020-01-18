@@ -82,26 +82,14 @@ int main(int argc, const char *argv[]){
     double _time = 0;
     _time = ((double)timeMax - (omp_get_wtime() - startT));
     int contNoImprovement = 0;
-    int contSize = 1, testAlpha =0;
-    if(alpha==-1){
-        testAlpha = -1;
-    }
-    if(alpha==-2){
-        testAlpha =-2;
-    }
+    int contSize = 1;
+
     do{
     //------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------
 
         int numberAuxConstraints = constraintsFull->numberConstraints;
-        if(testAlpha == -1){
-            alpha = fRand(0.01,0.5);
-            printf("alpha: %f\n", alpha);
-        }
-        if(testAlpha==-2){
-            alpha = fRand(0.01,0.75);
-            printf("alpha: %f\n", alpha);
-        }
+
         
         //execute Separation 
         if(cc==1){  
@@ -159,9 +147,10 @@ int main(int argc, const char *argv[]){
             lp_optimize_as_continuous(lp);
             double *xTemp = lp_x(lp);
             for (i = 0; i < constraintsFull->numberVariables; i++)
-            {
+            {   //printf("%f\t", constraintsFull->xAsterisc[i]);
                 constraintsFull->xAsterisc[i] = xTemp[i];
-            }
+                //printf("%f\n", constraintsFull->xAsterisc[i]);
+            }   
             if( (typeCC==1) && (iniObjSol==lp_obj_value(lp)) ){
                 timeMax = 0;    
             }

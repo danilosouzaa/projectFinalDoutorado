@@ -309,6 +309,7 @@ constraintsReal *runCCwithGrasp(constraintsReal *constraintsFull, int precision,
             idc_cover[j] = 1;
             qnt_cuts_cover++;
         }
+        //printf("Cover find: %d\n",qnt_cuts_cover);
         constraintsFull = createCutsCoverGrasp(cutsCoverSolution, constraintsFull, newConstraintsSmall, idc_cover, i, c_AuxSolution, precision);
         free(cutsCoverSolution);
         free(idc_cover);
@@ -327,20 +328,33 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
     int *poolSolution = (int *)malloc(sizeof(int) * sz * szPoolCutsMax);
     int nPoolSolution = 0;
     int ite = 0;
+    double testAlpha = alpha;
     for (ite = 0; ite < sz * szPoolCutsMax; ite++)
     {
         poolSolution[ite] = 0;
     }
-    createInitialCoverGRASP(solution, sz, constraintsSmall, precision, constraint, alpha);
-    ite = 0;
-    if (numberIteration == 0)
+    if (testAlpha == -1)
     {
-        copyAndVerifyPoolSolution(solution, sz, poolSolution, &nPoolSolution);
+        alpha = fRand(0.01, 0.5);
+        //printf("alpha: %f\n", alpha);
     }
+    if (testAlpha == -2)
+    {
+        alpha = fRand(0.01, 0.75);
+        //printf("alpha: %f\n", alpha);
+    }
+
+    ite = 0;
+    // if (numberIteration == 0)
+    // {
+    //     copyAndVerifyPoolSolution(solution, sz, poolSolution, &nPoolSolution);
+    // }
     if (minimal == 0)
     {
-        while (ite < numberIteration)
+        while (ite <= numberIteration)
         {
+
+            createInitialCoverGRASP(solution, sz, constraintsSmall, precision, constraint, alpha, typeLifted);
             int *solFinalTemp;
             cutCover *coverTemp = CopyCutToCover(constraintsSmall);
             if (typeLifted == 0)
@@ -355,24 +369,46 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
             {
                 copyAndVerifyPoolSolution(solution, sz, poolSolution, &nPoolSolution);
             }
-            free(coverTemp);
+            
             free(solFinalTemp);
-
-            solution = localSearch(solution, sz, constraintsSmall, precision, constraint);
-            copyAndVerifyPoolSolution(solution, sz, poolSolution, &nPoolSolution);
+            solution = localSearch(solution, sz, constraintsSmall, precision, constraint, minimal);
+            if (typeLifted == 0)
+            {
+                solFinalTemp = LCIAdam(solution, coverTemp, constraint);
+            }
+            else
+            {
+                solFinalTemp = LCIBallas(solution, coverTemp, constraint);
+            }
+            if (verifyViolationGreedy(solFinalTemp, constraintsSmall, constraint, precision) == 1)
+            {
+                copyAndVerifyPoolSolution(solution, sz, poolSolution, &nPoolSolution);
+            }
+            free(coverTemp);
+            
             if (nPoolSolution == szPoolCutsMax)
             {
                 break;
             }
             ite++;
+            if (testAlpha == -1)
+            {
+                alpha = fRand(0.01, 0.5);
+                //printf("alpha: %f\n", alpha);
+            }
+            if (testAlpha == -2)
+            {
+                alpha = fRand(0.01, 0.75);
+                //printf("alpha: %f\n", alpha);
+            }
         }
     }
     else
     {
-        int *auxSolution = (int *)malloc(sizeof(int) * sz);
-        memcpy(auxSolution, solution, sizeof(int) * sz);
+
         while (ite < numberIteration)
         {   
+            createInitialCoverGRASP(solution, sz, constraintsSmall, precision, constraint, alpha, typeLifted);
             if (verifySolutionCoverMinimal(solution, constraintsSmall, constraint) == 1)
             {
                 int *solFinalTemp;
@@ -387,32 +423,57 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
                 }
                 if (verifyViolationGreedy(solFinalTemp, constraintsSmall, constraint, precision) == 1)
                 {
-                   copyAndVerifyPoolSolution(solution, sz, poolSolution, &nPoolSolution);
+                    copyAndVerifyPoolSolution(solution, sz, poolSolution, &nPoolSolution);
                 }
                 free(solFinalTemp);
                 free(coverTemp);
-                
+            }else{
+                ite++;
+                continue;
             }
-            else
+            solution = localSearch(solution, sz, constraintsSmall, precision, constraint, minimal);
+            if (verifySolutionCoverMinimal(solution, constraintsSmall, constraint) == 1)
             {
-                memcpy(solution, auxSolution, sizeof(int) * sz);
+                int *solFinalTemp;
+                cutCover *coverTemp = CopyCutToCover(constraintsSmall);
+                if (typeLifted == 0)
+                {
+                    solFinalTemp = LCIAdam(solution, coverTemp, constraint);
+                }
+                else
+                {
+                    solFinalTemp = LCIBallas(solution, coverTemp, constraint);
+                }
+                if (verifyViolationGreedy(solFinalTemp, constraintsSmall, constraint, precision) == 1)
+                {
+                    copyAndVerifyPoolSolution(solution, sz, poolSolution, &nPoolSolution);
+                }
+                free(solFinalTemp);
+                free(coverTemp);
             }
-            memcpy(auxSolution, solution, sizeof(int) * sz);
-            solution = localSearch(solution, sz, constraintsSmall, precision, constraint);
-
             if (nPoolSolution == szPoolCutsMax)
             {
                 break;
             }
+            
+            if (testAlpha == -1)
+            {
+                alpha = fRand(0.01, 0.5);
+               // printf("alpha: %f\n", alpha);
+            }
+            if (testAlpha == -2)
+            {
+                alpha = fRand(0.01, 0.75);
+             //   printf("alpha: %f\n", alpha);
+            }
             ite++;
         }
-        free(auxSolution);
     }
     free(solution);
     return poolSolution;
 }
 
-void createInitialCoverGRASP(int *solution, int sz, cutSmall *constraintsSmall, int precision, int constraint, float alpha)
+void createInitialCoverGRASP(int *solution, int sz, cutSmall *constraintsSmall, int precision, int constraint, float alpha, int typeLifted)
 {
     int verifyCompleteSolution = 0;
     int *setId = (int *)malloc(sz * sizeof(int));
@@ -434,6 +495,7 @@ void createInitialCoverGRASP(int *solution, int sz, cutSmall *constraintsSmall, 
     szAux = aux;
     lhs = 0;
     int test = 0;
+     int contSizeNewSolution = 0;
     while (verifyCompleteSolution == 0)
     {
         aux = 0;
@@ -476,14 +538,29 @@ void createInitialCoverGRASP(int *solution, int sz, cutSmall *constraintsSmall, 
         int itemAdd = rand() % aux_t;
         el = setTemp[itemAdd] - constraintsSmall->ElementsConstraints[constraint];
         solution[el] = 1;
+         contSizeNewSolution++;
         szAux--;
         lhs += constraintsSmall->Coefficients[setTemp[itemAdd]];
         if (lhs - 1e-5 > constraintsSmall->rightSide[constraint])
         {
+            //int *solTemp;
+            //cutCover *coverTemp = CopyCutToCover(constraintsSmall);
+            //if(typeLifted==0){
+            //    solTemp = LCIAdam(solution, coverTemp,constraint);
+            //}else{
+            //    solTemp = LCIBallas(solution, coverTemp,constraint);
+            //}
+            //if(verifyViolationGreedy(solTemp,constraintsSmall,constraint,precision)==1){
+
+            //  free(coverTemp);
+            //free(solTemp);
             verifyCompleteSolution = 1;
             free(setTemp);
             free(posTemp);
             break;
+            //}
+            //free(coverTemp);
+            //free(solTemp);
         }
 
         free(setTemp);
@@ -500,6 +577,9 @@ void createInitialCoverGRASP(int *solution, int sz, cutSmall *constraintsSmall, 
         free(setId);
         setId = newSet;
         free(posTemp);
+         if(contSizeNewSolution==sz){
+            verifyCompleteSolution=1;
+         }
     }
     free(setId);
 }
@@ -543,11 +623,12 @@ constraintsReal *createCutsCoverGrasp(cutCover *cutsCover, constraintsReal *cons
         {
             continue;
         }
-        double violation = valueViolation(cutsCover, constraintsSmall, i, constraint, precision);
-        if (violation == 0)
-        {
-            idc_Cover[i] = 0;
-        }
+        // double violation = valueViolation(cutsCover, constraintsSmall, i, constraint, precision);
+        // //printf("%f\n",violation);
+        // if (violation == 0)
+        // {
+        //     idc_Cover[i] = 0;
+        // }
         if (idc_Cover[i] == 1)
         {
             contConstraints++;
@@ -680,7 +761,7 @@ int verifySolutionCoverMinimal(int *solution, cutSmall *constraintsSmall, TNumbe
     }
 }
 
-int *localSearch(int *solution, int sz, cutSmall *constraintsSmall, int precision, TNumberConstraints constraint)
+int *localSearch(int *solution, int sz, cutSmall *constraintsSmall, int precision, TNumberConstraints constraint, int minimal)
 {
     int *newSolution = (int *)malloc(sizeof(int) * sz);
     int *vNActived = (int *)malloc(sizeof(int) * sz);
@@ -711,12 +792,28 @@ int *localSearch(int *solution, int sz, cutSmall *constraintsSmall, int precisio
         int k_t = vNActived[szNActive - 1];
         newSolution[k_t] = 1;
         szNActive--;
-        if (verifySolutionCover(newSolution, constraintsSmall, precision, constraint) == 1)
+        if (minimal == 0)
         {
-            free(solution);
-            free(vNActived);
-            free(vActived);
-            return newSolution;
+            if (verifySolutionCover(newSolution, constraintsSmall, precision, constraint) == 1)
+            {
+                free(solution);
+                free(vNActived);
+                free(vActived);
+                return newSolution;
+            }
+        }
+        else
+        {
+            if (verifySolutionCover(newSolution, constraintsSmall, precision, constraint) == 1)
+            {
+                if (verifySolutionCoverMinimal(newSolution, constraintsSmall, constraint) == 1)
+                {
+                    free(solution);
+                    free(vNActived);
+                    free(vActived);
+                    return newSolution;
+                }
+            }
         }
     }
     free(newSolution);
@@ -841,6 +938,7 @@ int verifyViolationGreedy(int *solutionFinal, cutSmall *constraitsUsed, int cons
     lhs = lhs / (double)precision;
     if (lhs + 1e-5 > solutionFinal[sz])
     {
+        //printf("%f %d", lhs, solutionFinal[sz]);
         return 1;
     }
     return 0;

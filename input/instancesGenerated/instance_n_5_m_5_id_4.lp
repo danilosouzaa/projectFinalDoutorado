@@ -1,6 +1,6 @@
 \ LP format - for model browsing. Use MPS format to capture full model detail.
 Maximize
-  5 x_1 + 7 x_2 + 5 x_3 + 6 x_4 + 9 x_5
+   5 x_1 + 7 x_2 + 5 x_3 + 6 x_4 + 9 x_5
 Subject To
  C_1: 4 x_1 + 10 x_2 + 2 x_3 + 6 x_4 + x_5 <= 11
  C_2: 2 x_1 + 8 x_2 + 2 x_3 + 2 x_4 + 10 x_5 <= 12

@@ -16,7 +16,7 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
 
 cutSmall *reduceCutFullForCutSmall(constraintsReal *constraints, int *typeIntOrFloat, int precision);
 
-void createInitialCoverGRASP(int *solution, int sz, cutSmall *constraintsSmall, int precision, int constraint, float alpha);
+void createInitialCoverGRASP(int *solution, int sz, cutSmall *constraintsSmall, int precision, int constraint, float alpha, int typeLifted);
 
 void copyAndVerifyPoolSolution(int *solution, int sz, int *poolSolution, int *numberSolutionAtual);
 
@@ -24,7 +24,7 @@ int verifySolutionCoverMinimal(int *solution, cutSmall *constraintsSmall, TNumbe
 
 constraintsReal *createCutsCoverGrasp(cutCover *cutsCover, constraintsReal *constraintsOriginal, cutSmall *constraintsSmall, int *idc_Cover, int constraint, int nCuts, int precision);
 
-int *localSearch(int *solution, int sz, cutSmall *constraintsSmall, int precision, TNumberConstraints constraint);
+int *localSearch(int *solution, int sz, cutSmall *constraintsSmall, int precision, TNumberConstraints constraint, int minimal);
 
 int verifySolutionCover(int *solution, cutSmall *constraintsSmall, int precision, TNumberConstraints constraint);
 
