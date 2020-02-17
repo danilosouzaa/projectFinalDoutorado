@@ -335,12 +335,27 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
     }
     if (testAlpha == -1)
     {
-        alpha = fRand(0.01, 0.5);
+        alpha = fRand(0.0, 0.0);
         //printf("alpha: %f\n", alpha);
     }
     if (testAlpha == -2)
     {
-        alpha = fRand(0.01, 0.75);
+        alpha = fRand(0.0, 0.01);
+        //printf("alpha: %f\n", alpha);
+    }
+    if (testAlpha == -3)
+    {
+        alpha = fRand(0.01, 0.015);
+        //printf("alpha: %f\n", alpha);
+    }
+    if (testAlpha == -4)
+    {
+        alpha = fRand(0.01, 0.02);
+        //printf("alpha: %f\n", alpha);
+    }
+    if (testAlpha == -5)
+    {
+        alpha = fRand(0.01, 0.05);
         //printf("alpha: %f\n", alpha);
     }
 
@@ -369,7 +384,7 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
             {
                 copyAndVerifyPoolSolution(solution, sz, poolSolution, &nPoolSolution);
             }
-            
+
             free(solFinalTemp);
             solution = localSearch(solution, sz, constraintsSmall, precision, constraint, minimal);
             if (typeLifted == 0)
@@ -385,7 +400,7 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
                 copyAndVerifyPoolSolution(solution, sz, poolSolution, &nPoolSolution);
             }
             free(coverTemp);
-            
+
             if (nPoolSolution == szPoolCutsMax)
             {
                 break;
@@ -393,12 +408,27 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
             ite++;
             if (testAlpha == -1)
             {
-                alpha = fRand(0.01, 0.5);
+                alpha = fRand(0.0, 0.0);
                 //printf("alpha: %f\n", alpha);
             }
             if (testAlpha == -2)
             {
-                alpha = fRand(0.01, 0.75);
+                alpha = fRand(0.0, 0.01);
+                //printf("alpha: %f\n", alpha);
+            }
+            if (testAlpha == -3)
+            {
+                alpha = fRand(0.01, 0.015);
+                //printf("alpha: %f\n", alpha);
+            }
+            if (testAlpha == -4)
+            {
+                alpha = fRand(0.01, 0.02);
+                //printf("alpha: %f\n", alpha);
+            }
+            if (testAlpha == -5)
+            {
+                alpha = fRand(0.01, 0.05);
                 //printf("alpha: %f\n", alpha);
             }
         }
@@ -407,7 +437,7 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
     {
 
         while (ite < numberIteration)
-        {   
+        {
             createInitialCoverGRASP(solution, sz, constraintsSmall, precision, constraint, alpha, typeLifted);
             if (verifySolutionCoverMinimal(solution, constraintsSmall, constraint) == 1)
             {
@@ -427,7 +457,9 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
                 }
                 free(solFinalTemp);
                 free(coverTemp);
-            }else{
+            }
+            else
+            {
                 ite++;
                 continue;
             }
@@ -455,16 +487,31 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
             {
                 break;
             }
-            
+
             if (testAlpha == -1)
             {
-                alpha = fRand(0.01, 0.5);
-               // printf("alpha: %f\n", alpha);
+                alpha = fRand(0.0, 0.0);
+                //printf("alpha: %f\n", alpha);
             }
             if (testAlpha == -2)
             {
-                alpha = fRand(0.01, 0.75);
-             //   printf("alpha: %f\n", alpha);
+                alpha = fRand(0.0, 0.01);
+                //printf("alpha: %f\n", alpha);
+            }
+            if (testAlpha == -3)
+            {
+                alpha = fRand(0.01, 0.015);
+                //printf("alpha: %f\n", alpha);
+            }
+            if (testAlpha == -4)
+            {
+                alpha = fRand(0.01, 0.02);
+                //printf("alpha: %f\n", alpha);
+            }
+            if (testAlpha == -5)
+            {
+                alpha = fRand(0.01, 0.05);
+                //printf("alpha: %f\n", alpha);
             }
             ite++;
         }
@@ -495,7 +542,7 @@ void createInitialCoverGRASP(int *solution, int sz, cutSmall *constraintsSmall, 
     szAux = aux;
     lhs = 0;
     int test = 0;
-     int contSizeNewSolution = 0;
+    int contSizeNewSolution = 0;
     while (verifyCompleteSolution == 0)
     {
         aux = 0;
@@ -538,7 +585,7 @@ void createInitialCoverGRASP(int *solution, int sz, cutSmall *constraintsSmall, 
         int itemAdd = rand() % aux_t;
         el = setTemp[itemAdd] - constraintsSmall->ElementsConstraints[constraint];
         solution[el] = 1;
-         contSizeNewSolution++;
+        contSizeNewSolution++;
         szAux--;
         lhs += constraintsSmall->Coefficients[setTemp[itemAdd]];
         if (lhs - 1e-5 > constraintsSmall->rightSide[constraint])
@@ -577,9 +624,10 @@ void createInitialCoverGRASP(int *solution, int sz, cutSmall *constraintsSmall, 
         free(setId);
         setId = newSet;
         free(posTemp);
-         if(contSizeNewSolution==sz){
-            verifyCompleteSolution=1;
-         }
+        if (contSizeNewSolution == sz)
+        {
+            verifyCompleteSolution = 1;
+        }
     }
     free(setId);
 }
