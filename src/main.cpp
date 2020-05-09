@@ -29,7 +29,11 @@ int main(int argc, const char *argv[]){
     int nIterationCCGrasp = 0;
     float alpha = 0.0;
     int i;
-    int cg1 = 0, cg2 = 0, ck = 0, cc =0; 
+    int cg1, cg2, ck, cc ; 
+    cg1 = 0;
+    cg2 = 0;
+    ck = 0;
+    ck = 0;
     for (i = 0; i < argc; i++)
     {
         if (strcmp(argv[i], "-CG1") == 0)
@@ -43,11 +47,11 @@ int main(int argc, const char *argv[]){
         if (strcmp(argv[i], "-CC") == 0)
         {
             cc = 1;
-            typeCC = atoi(argv[i+1]);
-            typeLift = atoi(argv[i+2]);
-            minimal  = atoi(argv[i+3]);
-            szPoolCutsMaxCC = atoi(argv[i+4]);
-            nIterationCCGrasp = atof(argv[i+5]);
+            typeCC = atoi(argv[i+1]); //0 - grasp or 1 - greedy
+            typeLift = atoi(argv[i+2]); //0 - Adam e  1 - ballas or adam
+            minimal  = atoi(argv[i+3]); // 1 - cover minimal or 0 - not minimal
+            szPoolCutsMaxCC = atoi(argv[i+4]); //size pool iterGrasp
+            nIterationCCGrasp = atof(argv[i+5]); //
             alpha = atof(argv[i+6]);
         }
         if (strcmp(argv[i], "-CK") == 0)
@@ -58,6 +62,7 @@ int main(int argc, const char *argv[]){
     int numberAux = 0, numberCutsCC = 0;
     LinearProgram *lp = lp_create();
     lp_read(lp, nameFileInstance);
+    lp_set_print_messages(lp,0);
     char **nameVariables = createNameVariablesInitial(lp);// struct and name
     char **nameConstraints = createStructNameConstraintsInitial(lp);// struct
     TNumberConstraints nConstraints = countConstraintsValided(lp);
@@ -69,11 +74,14 @@ int main(int argc, const char *argv[]){
     double *lbVariables = (double *)malloc(sizeof(double) * nVariables);
     double *ubVariables = (double *)malloc(sizeof(double) * nVariables);
     constraintsReal *constraintsFull = fillStructPerLP(lp,nameConstraints, nameVariables,typeVariables,lbVariables, ubVariables);
-    showStructFull(constraintsFull, nameConstraints, nameVariables);
+    //showStructFull(constraintsFull, nameConstraints, nameVariables);
     lp_write_lp(lp,"../output/temp.lp");
+  
     lp_optimize_as_continuous(lp);
+    //getchar();
     double iniObjSol = lp_obj_value(lp);
     printf("Solution initial: %f \n", iniObjSol);
+    lp_set_cuts(lp,'0');
 
     //------------------------------------------------------------------------------------
     // Initial Time Counting
@@ -83,7 +91,11 @@ int main(int argc, const char *argv[]){
     _time = ((double)timeMax - (omp_get_wtime() - startT));
     int contNoImprovement = 0;
     int contSize = 1;
-
+    if(typeCC==0){
+        printf("Grasp\n");
+    }else{
+        printf("Greedy\n");
+    }
     do{
     //------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------
@@ -100,13 +112,13 @@ int main(int argc, const char *argv[]){
             int numberVariablesInitial = constraintsBinary->numberVariables;
             int *convertVariables = (int *)malloc(sizeof(int) * constraintsBinary->cont);
             constraintsBinary = removeNegativeCoefficientsAndSort(constraintsBinary, convertVariables);
-            printf("Number Constraints Used in Cover:%d\n", nConstraintsUsed);
+            printf("ncUsed:%d\t", nConstraintsUsed);
             numberAux = constraintsBinary->numberConstraints;
             if(typeCC==0){
-                printf("GRASP Method!\n");
+                
                 constraintsBinary = runCCwithGrasp(constraintsBinary,precision,nameConstraints,nameVariables,szPoolCutsMaxCC, nIterationCCGrasp, alpha,minimal,typeLift);
             }else{
-                printf("Greedy Method!\n");
+                
                 constraintsBinary = runCCGreedy(constraintsBinary,precision,nameConstraints,nameVariables,typeLift);
             }
 
@@ -133,10 +145,10 @@ int main(int argc, const char *argv[]){
             }
         #endif
         int totalCuts = constraintsFull->numberConstraints - numberAuxConstraints;
-         printf("Cuts total: %d\n", totalCuts);
         // printf("Depois: %d \n", constraintsOriginal->numberConstraints);
         if (totalCuts > 0)
         {
+            printf("LCI: %d\t", totalCuts);
             #ifdef DEBUG
                 insertConstraintsLPDebug(lp, constraintsFull, numberAuxConstraints, nameConstraints, verifyTest);
             #else
@@ -158,13 +170,16 @@ int main(int argc, const char *argv[]){
                 contNoImprovement ++;
             }else{
                 _time = ((double)timeMax - (omp_get_wtime() - startT));
-                printf("timeImprovemt: %f\n", _time);
+                printf("tImp: %f\t", (omp_get_wtime() - startT));
                 contNoImprovement = 0;
             }
+        
+            //getchar();
             iniObjSol =  lp_obj_value(lp);
-            printf("%d value: %f\n", contNoImprovement, iniObjSol);
+            printf("obj: %f\n", iniObjSol);
             
         }else{
+            printf("\n");
             contNoImprovement++;
         }
         if(contNoImprovement>1000){
@@ -179,8 +194,8 @@ int main(int argc, const char *argv[]){
         _time = ((double)timeMax - (omp_get_wtime() - startT));
     //}while(_time > 1);
         contSize++;
-    }while(contSize <= 15);
-    printf("Number Cuts Final: %d\n", numberCutsCC);
+    }while((contSize <= 15)&&(_time>0));
+    printf("ncF: %d tF: %f \n", numberCutsCC, (omp_get_wtime() - startT));
     //------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------
     #ifdef DEBUG    

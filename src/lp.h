@@ -730,4 +730,5 @@ void lp_set_callback( LinearProgram *lp, lp_cb callback, void *data );
 // global flag indicating if variable/row names will be stored, can save some memory when off
 void lp_set_store_names( int store );
 
+
 #endif

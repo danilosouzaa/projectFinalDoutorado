@@ -281,7 +281,7 @@ int *vectorNonRepeteadNonDominated(constraintsReal *constraintsOriginal, int nCo
             }
         }
     }
-    printf("Number cuts repeat: %d\n", qntRepeat);
+    //printf("ncRpt: %d\t", qntRepeat);
     free(v_aux);
     return isRepeat;
 }

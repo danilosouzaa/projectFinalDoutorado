@@ -309,7 +309,6 @@ constraintsReal *runCCwithGrasp(constraintsReal *constraintsFull, int precision,
             idc_cover[j] = 1;
             qnt_cuts_cover++;
         }
-        //printf("Cover find: %d\n",qnt_cuts_cover);
         constraintsFull = createCutsCoverGrasp(cutsCoverSolution, constraintsFull, newConstraintsSmall, idc_cover, i, c_AuxSolution, precision);
         free(cutsCoverSolution);
         free(idc_cover);
@@ -335,7 +334,8 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
     }
     if (testAlpha == -1)
     {
-        alpha = fRand(0.0, 0.0);
+        //printf("entre 0.0 e 0.1");
+        alpha = fRand(0.0, 0.1);
         //printf("alpha: %f\n", alpha);
     }
     if (testAlpha == -2)
@@ -408,7 +408,7 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
             ite++;
             if (testAlpha == -1)
             {
-                alpha = fRand(0.0, 0.0);
+                alpha = fRand(0.0, 0.1);
                 //printf("alpha: %f\n", alpha);
             }
             if (testAlpha == -2)
@@ -490,7 +490,7 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
 
             if (testAlpha == -1)
             {
-                alpha = fRand(0.0, 0.0);
+                alpha = fRand(0.0, 0.1);
                 //printf("alpha: %f\n", alpha);
             }
             if (testAlpha == -2)
@@ -671,12 +671,12 @@ constraintsReal *createCutsCoverGrasp(cutCover *cutsCover, constraintsReal *cons
         {
             continue;
         }
-        // double violation = valueViolation(cutsCover, constraintsSmall, i, constraint, precision);
-        // //printf("%f\n",violation);
-        // if (violation == 0)
-        // {
-        //     idc_Cover[i] = 0;
-        // }
+         double violation = valueViolation(cutsCover, constraintsSmall, i, constraint, precision);
+        //printf("%f\n",violation);
+         if (violation == 0)
+         {
+             idc_Cover[i] = 0;
+         }
         if (idc_Cover[i] == 1)
         {
             contConstraints++;
