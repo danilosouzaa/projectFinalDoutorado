@@ -194,7 +194,7 @@ int main(int argc, const char *argv[]){
         _time = ((double)timeMax - (omp_get_wtime() - startT));
     //}while(_time > 1);
         contSize++;
-    }while((contSize <= 15)&&(_time>0));
+    }while((contSize <= 50)&&(_time>0));
     printf("ncF: %d tF: %f \n", numberCutsCC, (omp_get_wtime() - startT));
     //------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------
