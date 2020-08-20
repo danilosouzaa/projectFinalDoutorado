@@ -42,6 +42,23 @@ cutSmall *AllocStrCutSmall(TCont cont, TNumberConstraints nConstraints, TNumberV
     return cut;
 }
 
+
+constraintMin *AllocStrConstraintsMin(TCont cont){
+      size_t size_c= sizeof(constraintMin) +
+                      sizeof(TCoefficients) * (cont) +
+                      sizeof(TPosList) * (cont) +
+                      sizeof(TActivedCut) * (cont);
+
+    constraintMin *c = (constraintMin *)malloc(size_c);
+    assert(c != NULL);
+    memset(c, 0, size_c);
+    c->Coefficients = (TCoefficients *)(c + 1);
+    c->positionOriginal = (TPosList *)(c->Coefficients + cont);
+    c->Cover = (TActivedCut *)(c->positionOriginal + cont);
+    c->cont = cont;
+    return c;
+}
+
 void freeStrConstraintsReal(constraintsReal *cut)
 {
     free(cut->Coefficients);
@@ -51,6 +68,8 @@ void freeStrConstraintsReal(constraintsReal *cut)
     free(cut->xAsterisc);
     free(cut);
 }
+
+
 
 constraintsReal *fillStructPerLP(LinearProgram *lp, char **nameConstraints, char **nameVariables, int *typeVariables, double *lbVariables, double *ubVariables)
 {
@@ -144,12 +163,21 @@ constraintsReal *fillStructPerLP(LinearProgram *lp, char **nameConstraints, char
     int aux = 0;
     h_cut->ElementsConstraints[0] = 0;
     int contador = 0;
+    int a = 1;
     for (i = 0; i < nConstraints; i++)
     {
         if (lp_sense(lp, i) == 'L')
         {
             lp_row(lp, i, idx, coef);
             rhs = lp_rhs(lp, i);
+            if (rhs == 1)
+            {
+                a = 2;
+            }
+            else
+            {
+                a = 1;
+            }
             szConst = 0;
             for (j = 0; j < nVariables; j++)
             {
@@ -167,7 +195,7 @@ constraintsReal *fillStructPerLP(LinearProgram *lp, char **nameConstraints, char
                 if (coef[j] != 0.0)
                 {
 
-                    h_cut->Coefficients[aux] = coef[j];
+                    h_cut->Coefficients[aux] = a * coef[j];
                     h_cut->Elements[aux] = idx[j];
                     aux++;
                 }
@@ -179,13 +207,21 @@ constraintsReal *fillStructPerLP(LinearProgram *lp, char **nameConstraints, char
             lp_row_name(lp, i, nameConstraints[contador]);
 
             h_cut->ElementsConstraints[contador + 1] = aux;
-            h_cut->rightSide[contador] = rhs;
+            h_cut->rightSide[contador] = a * rhs;
             contador++;
         }
         else if (lp_sense(lp, i) == 'G')
         {
             lp_row(lp, i, idx, coef);
             rhs = lp_rhs(lp, i);
+            if (rhs == 1)
+            {
+                a = 2;
+            }
+            else
+            {
+                a = 1;
+            }
             szConst = 0;
             for (j = 0; j < nVariables; j++)
             {
@@ -203,7 +239,7 @@ constraintsReal *fillStructPerLP(LinearProgram *lp, char **nameConstraints, char
             {
                 if (coef[j] != 0.0)
                 {
-                    h_cut->Coefficients[aux] = -1 * coef[j];
+                    h_cut->Coefficients[aux] = -1 * coef[j] * a;
                     h_cut->Elements[aux] = idx[j];
                     aux++;
                 }
@@ -215,7 +251,7 @@ constraintsReal *fillStructPerLP(LinearProgram *lp, char **nameConstraints, char
             lp_row_name(lp, i, nameConstraints[contador]);
 
             h_cut->ElementsConstraints[contador + 1] = aux;
-            h_cut->rightSide[contador] = -1 * rhs;
+            h_cut->rightSide[contador] = -1 * rhs * a;
             contador++;
         }
         else
@@ -223,6 +259,14 @@ constraintsReal *fillStructPerLP(LinearProgram *lp, char **nameConstraints, char
 
             lp_row(lp, i, idx, coef);
             rhs = lp_rhs(lp, i);
+            if (rhs == 1)
+            {
+                a = 2;
+            }
+            else
+            {
+                a = 1;
+            }
             szConst = 0;
             for (j = 0; j < nVariables; j++)
             {
@@ -239,7 +283,7 @@ constraintsReal *fillStructPerLP(LinearProgram *lp, char **nameConstraints, char
             {
                 if (coef[j] != 0.0)
                 {
-                    h_cut->Coefficients[aux] = coef[j];
+                    h_cut->Coefficients[aux] = a * coef[j];
                     h_cut->Elements[aux] = idx[j];
                     aux++;
                 }
@@ -252,14 +296,14 @@ constraintsReal *fillStructPerLP(LinearProgram *lp, char **nameConstraints, char
             strcat(nameTemp, "_1");
             strcpy(nameConstraints[contador], nameTemp);
             h_cut->ElementsConstraints[contador + 1] = aux;
-            h_cut->rightSide[contador] = rhs;
+            h_cut->rightSide[contador] = a * rhs;
             contador++;
 
             for (j = 0; j < nVariables; j++)
             {
                 if (coef[j] != 0.0)
                 {
-                    h_cut->Coefficients[aux] = -1 * coef[j];
+                    h_cut->Coefficients[aux] = -1 * coef[j] * a;
                     h_cut->Elements[aux] = idx[j];
                     aux++;
                 }
@@ -272,7 +316,7 @@ constraintsReal *fillStructPerLP(LinearProgram *lp, char **nameConstraints, char
             strcat(nameTemp, "_2");
             strcpy(nameConstraints[contador], nameTemp);
             h_cut->ElementsConstraints[contador + 1] = aux;
-            h_cut->rightSide[contador] = -1 * rhs;
+            h_cut->rightSide[contador] = -1 * rhs * a;
             contador++;
         }
     }
@@ -356,7 +400,7 @@ int *returnBinaryConstraints(constraintsReal *constraintsOriginal, int *typeVari
                 qntBin++;
             }
         }
-        if (qntBin < 2)
+        if (qntBin < 1)
         {
             BinaryConstraints[i] = 0; // restrição que não vale a pena transformar
         }
@@ -385,17 +429,17 @@ TNumberConstraints countConstraintsBinaryUsed(int *binaryConstraints, int sz)
     return constraintsUsed;
 }
 
-
 constraintsReal *convertBinaryConstraints(constraintsReal *constraintsOriginal, int *BinaryConstraints, int *typeVariables, double *lbVariables, double *ubVariables)
 {
     int i, j, el;
-    int contConstraints, newCont, contAux;;
-    int *constraintsAvalible = (int*)malloc(sizeof(int)*constraintsOriginal->numberConstraints);
-  
+    int contConstraints, newCont, contAux;
+    ;
+    int *constraintsAvalible = (int *)malloc(sizeof(int) * constraintsOriginal->numberConstraints);
+
     contConstraints = 0;
     newCont = 0;
     for (i = 0; i < constraintsOriginal->numberConstraints; i++)
-    {   
+    {
         constraintsAvalible[i] = 0;
         if (BinaryConstraints[i] != 0)
         {
@@ -405,63 +449,85 @@ constraintsReal *convertBinaryConstraints(constraintsReal *constraintsOriginal, 
                 el = constraintsOriginal->Elements[j];
                 if (typeVariables[el] != 1)
                 {
-                    if ( ( (constraintsOriginal->Coefficients[j]<0) && (ubVariables[el] == DBL_MAX) ) || ( (constraintsOriginal->Coefficients[j]>0) &&(lbVariables[el]== -DBL_MAX) ) ) 
+                    if (((constraintsOriginal->Coefficients[j] < 0) && (ubVariables[el] == DBL_MAX)) || ((constraintsOriginal->Coefficients[j] > 0) && (lbVariables[el] == -DBL_MAX)))
                     {
                         contAux = 0;
                         break;
                     }
-                }else{ 
+                }
+                else
+                {
                     contAux++;
                 }
             }
-            if(contAux>=2){
+            if (contAux >= 2)
+            {
                 newCont += contAux;
                 contConstraints++;
                 constraintsAvalible[i] = 1;
-
             }
         }
     }
-    constraintsReal *constraintsBinary = AllocStrConstraintsReal(newCont,contConstraints,constraintsOriginal->numberVariables);
+    constraintsReal *constraintsBinary = AllocStrConstraintsReal(newCont, contConstraints, constraintsOriginal->numberVariables);
     newCont = 0;
     contConstraints = 0;
     constraintsBinary->ElementsConstraints[0] = 0;
     int rhsTemp = 0;
-    for (i = 0; i< constraintsOriginal->numberConstraints;i++){
-        if(constraintsAvalible[i]==1){
+    for (i = 0; i < constraintsOriginal->numberConstraints; i++)
+    {
+        if (constraintsAvalible[i] == 1)
+        {
             rhsTemp = 0;
-            for(j = constraintsOriginal->ElementsConstraints[i];j<constraintsOriginal->ElementsConstraints[i+1];j++){
+            for (j = constraintsOriginal->ElementsConstraints[i]; j < constraintsOriginal->ElementsConstraints[i + 1]; j++)
+            {
                 el = constraintsOriginal->Elements[j];
-                if(typeVariables[el]==1){
+                if (typeVariables[el] == 1)
+                {
                     constraintsBinary->Coefficients[newCont] = constraintsOriginal->Coefficients[j];
                     constraintsBinary->Elements[newCont] = el;
                     newCont++;
-                }else{
-                    if(constraintsOriginal->Coefficients[j]<0){
-                        if( (ubVariables[el]>=0)&&(lbVariables[el]>=0) ){
-                            rhsTemp += (constraintsOriginal->Coefficients[j] * -1 )*ubVariables[el];
-                        }else if( (ubVariables[el]<=0)&&(lbVariables[el]<=0)){
-                            rhsTemp += 0;
-                        }else{
-                            rhsTemp += (constraintsOriginal->Coefficients[j] * -1 )*ubVariables[el];
+                }
+                else
+                {
+                    if (constraintsOriginal->Coefficients[j] < 0)
+                    {
+                        if ((ubVariables[el] >= 0) && (lbVariables[el] >= 0))
+                        {
+                            rhsTemp += (constraintsOriginal->Coefficients[j] * -1) * ubVariables[el];
                         }
-                    }else{
-                        if( (ubVariables[el]>=0)&&(lbVariables[el]>=0) ){
+                        else if ((ubVariables[el] <= 0) && (lbVariables[el] <= 0))
+                        {
                             rhsTemp += 0;
-                        }else if( (ubVariables[el]<=0)&&(lbVariables[el]<=0)){
-                            rhsTemp += constraintsOriginal->Coefficients[j]*(lbVariables[el] *(-1));
-                        }else{
-                            rhsTemp += constraintsOriginal->Coefficients[j]*(lbVariables[el]*-1);
+                        }
+                        else
+                        {
+                            rhsTemp += (constraintsOriginal->Coefficients[j] * -1) * ubVariables[el];
+                        }
+                    }
+                    else
+                    {
+                        if ((ubVariables[el] >= 0) && (lbVariables[el] >= 0))
+                        {
+                            rhsTemp += 0;
+                        }
+                        else if ((ubVariables[el] <= 0) && (lbVariables[el] <= 0))
+                        {
+                            rhsTemp += constraintsOriginal->Coefficients[j] * (lbVariables[el] * (-1));
+                        }
+                        else
+                        {
+                            rhsTemp += constraintsOriginal->Coefficients[j] * (lbVariables[el] * -1);
                         }
                     }
                 }
             }
-            constraintsBinary->ElementsConstraints[contConstraints+1] = newCont;
+            constraintsBinary->ElementsConstraints[contConstraints + 1] = newCont;
             constraintsBinary->rightSide[contConstraints] = constraintsOriginal->rightSide[i] + rhsTemp;
             contConstraints++;
         }
     }
-    for (i=0;i<constraintsOriginal->numberVariables;i++){
+    for (i = 0; i < constraintsOriginal->numberVariables; i++)
+    {
         constraintsBinary->xAsterisc[i] = constraintsOriginal->xAsterisc[i];
     }
     free(constraintsAvalible);
@@ -614,14 +680,16 @@ int verifyOfFloatIsInteger(TCoefficientsFull coef)
 int *returnVectorTypeContraintsIntOrFloat(constraintsReal *constraints)
 {
     int flag = 1, i, j, aux = 0;
-    TCoefficientsFull coeffAux;
+    TCoefficientsFull coeffAux, lhsCoefs = 0;
     int *vectorTypeInt = (int *)malloc(sizeof(int) * constraints->numberConstraints);
     for (i = 0; i < constraints->numberConstraints; i++)
     {
         flag = 1;
+        lhsCoefs = 0;
         for (j = constraints->ElementsConstraints[i]; j < constraints->ElementsConstraints[i + 1]; j++)
         {
             coeffAux = constraints->Coefficients[j];
+            lhsCoefs += constraints->Coefficients[j];
             aux = verifyOfFloatIsInteger(coeffAux);
             if (aux == 0)
             {
@@ -630,7 +698,7 @@ int *returnVectorTypeContraintsIntOrFloat(constraintsReal *constraints)
             }
         }
         aux = verifyOfFloatIsInteger(constraints->rightSide[i]);
-        if (aux == 0)
+        if ((aux == 0) && (lhsCoefs <= constraints->rightSide[i]))
         {
             flag = 0;
         }
@@ -713,20 +781,60 @@ int verifyRepeated(constraintsReal *originalConstraints, int posCover)
     return 1;
 }
 
-double valueViolation(cutCover *cCover, cutSmall *constraintsSmall, TNumberConstraints idCover, TNumberConstraints ogConstraint, int precision){
+int verifyRepeatedIncidency(int **matrizIncidencia, constraintsReal *originalConstraints, int posCover)
+{
+    int i, j, cont = 0, el, aux;
+    int sz = originalConstraints->ElementsConstraints[posCover + 1] - originalConstraints->ElementsConstraints[posCover];
+    for (i = 0; i < posCover; i++)
+    {
+        if ((sz == (originalConstraints->ElementsConstraints[i + 1] - originalConstraints->ElementsConstraints[i])) && (originalConstraints->rightSide[posCover] == originalConstraints->rightSide[i]))
+        {
+            for (j = originalConstraints->ElementsConstraints[posCover]; j < originalConstraints->ElementsConstraints[posCover + 1]; j++)
+            {
+                el = originalConstraints->Elements[j];
+                if (matrizIncidencia[i][el] != -1)
+                {
+                    aux = matrizIncidencia[i][el];
+                    if (originalConstraints->Coefficients[j] == originalConstraints->Coefficients[aux])
+                    {
+                        cont++;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+        if (cont == sz)
+        {
+            return 0;
+        }
+        else
+        {
+            cont = 0;
+        }
+    }
+    return 1;
+}
+
+double valueViolation(cutCover *cCover, cutSmall *constraintsSmall, TNumberConstraints idCover, TNumberConstraints ogConstraint, int precision)
+{
     int i = 0, el;
     double lhs = 0, violation = 0;
     int aux = constraintsSmall->ElementsConstraints[ogConstraint];
-    for(i = cCover->ElementsConstraints[idCover];i< cCover->ElementsConstraints[idCover+1];i++){
-            el = constraintsSmall->Elements[aux];
-            lhs += ((double)cCover->Coefficients[i] )*((double)constraintsSmall->xAsterisc[el]/(double)precision ) ;
-      //       printf("x* %d= %d coef = %d \n",el, constraintsSmall->xAsterisc[el], constraintsSmall->Coefficients[i]);
-            aux++;
-    //    }
+    for (i = cCover->ElementsConstraints[idCover]; i < cCover->ElementsConstraints[idCover + 1]; i++)
+    {
+        el = constraintsSmall->Elements[aux];
+        lhs += ((double)cCover->Coefficients[i]) * ((double)constraintsSmall->xAsterisc[el] / (double)precision);
+        //       printf("x* %d= %d coef = %d \n",el, constraintsSmall->xAsterisc[el], constraintsSmall->Coefficients[i]);
+        aux++;
+        //    }
     }
     // printf("lhs %f rhs %d\n",lhs, cCover->rightSide[idCover]);
     violation = lhs - (double)cCover->rightSide[idCover];
-    if(violation + 1e-5 < 0.0){
+    if (violation + 1e-5 < 0.0)
+    {
         violation = 0.0;
     }
     return violation;
@@ -770,7 +878,6 @@ void quicksortTParameters(TParametersGroup *values, TNumberConstraints *idc, TNu
         quicksortTParameters(values, idc, i, end);
 }
 
-
 constraintsReal *returnVariablesOriginals(constraintsReal *constraintsOriginal, int *convertVector, int precision, int nVariablesInitial)
 {
     //printf("%d - nVariablesInitial\n", nVariablesInitial);
@@ -810,39 +917,48 @@ constraintsReal *returnVariablesOriginals(constraintsReal *constraintsOriginal, 
     return newConstraints;
 }
 
-constraintsReal *convertBinaryOfOriginalConstraints(constraintsReal *constraintsOriginal, constraintsReal *constraintsBinary, int nInitialBinary){
+constraintsReal *convertBinaryOfOriginalConstraints(constraintsReal *constraintsOriginal, constraintsReal *constraintsBinary, int nInitialBinary)
+{
     TNumberConstraints sizeNew = constraintsOriginal->numberConstraints + (constraintsBinary->numberConstraints - nInitialBinary);
     TCont contNew = constraintsOriginal->cont;
-    int i,j, jTemp;;
-    for(i = nInitialBinary; i < constraintsBinary->numberConstraints;i++){
-        contNew += constraintsBinary->ElementsConstraints[i+1] - constraintsBinary->ElementsConstraints[i];
+    int i, j, jTemp;
+    ;
+    for (i = nInitialBinary; i < constraintsBinary->numberConstraints; i++)
+    {
+        contNew += constraintsBinary->ElementsConstraints[i + 1] - constraintsBinary->ElementsConstraints[i];
     }
-    if(constraintsBinary->numberConstraints - nInitialBinary==0){
+    if (constraintsBinary->numberConstraints - nInitialBinary == 0)
+    {
         return constraintsOriginal;
     }
-    constraintsReal*newConstraintsOriginal = AllocStrConstraintsReal(contNew, sizeNew, constraintsOriginal->numberVariables);
+    constraintsReal *newConstraintsOriginal = AllocStrConstraintsReal(contNew, sizeNew, constraintsOriginal->numberVariables);
 
-    for (j=0;j<constraintsOriginal->numberVariables;j++){
+    for (j = 0; j < constraintsOriginal->numberVariables; j++)
+    {
         newConstraintsOriginal->xAsterisc[j] = constraintsOriginal->xAsterisc[j];
     }
     newConstraintsOriginal->ElementsConstraints[0] = constraintsOriginal->ElementsConstraints[0];
-    for(i=0;i<constraintsOriginal->numberConstraints;i++){
-        newConstraintsOriginal->ElementsConstraints[i+1] = constraintsOriginal->ElementsConstraints[i+1];
+    for (i = 0; i < constraintsOriginal->numberConstraints; i++)
+    {
+        newConstraintsOriginal->ElementsConstraints[i + 1] = constraintsOriginal->ElementsConstraints[i + 1];
         newConstraintsOriginal->rightSide[i] = constraintsOriginal->rightSide[i];
-        for(j = constraintsOriginal->ElementsConstraints[i]; j<  constraintsOriginal->ElementsConstraints[i+1]; j++){
+        for (j = constraintsOriginal->ElementsConstraints[i]; j < constraintsOriginal->ElementsConstraints[i + 1]; j++)
+        {
             newConstraintsOriginal->Coefficients[j] = constraintsOriginal->Coefficients[j];
             newConstraintsOriginal->Elements[j] = constraintsOriginal->Elements[j];
         }
     }
-    contNew  = newConstraintsOriginal->ElementsConstraints[i];
+    contNew = newConstraintsOriginal->ElementsConstraints[i];
     jTemp = constraintsOriginal->numberConstraints;
-    for(i = nInitialBinary;i<constraintsBinary->numberConstraints;i++){
-        for(j=constraintsBinary->ElementsConstraints[i]; j<constraintsBinary->ElementsConstraints[i+1];j++){
+    for (i = nInitialBinary; i < constraintsBinary->numberConstraints; i++)
+    {
+        for (j = constraintsBinary->ElementsConstraints[i]; j < constraintsBinary->ElementsConstraints[i + 1]; j++)
+        {
             newConstraintsOriginal->Coefficients[contNew] = constraintsBinary->Coefficients[j];
-            newConstraintsOriginal->Elements[contNew] = constraintsBinary->Elements[j];       
+            newConstraintsOriginal->Elements[contNew] = constraintsBinary->Elements[j];
             contNew++;
         }
-        newConstraintsOriginal->ElementsConstraints[jTemp+1] = contNew;
+        newConstraintsOriginal->ElementsConstraints[jTemp + 1] = contNew;
         newConstraintsOriginal->rightSide[jTemp] = constraintsBinary->rightSide[i];
         jTemp++;
     }

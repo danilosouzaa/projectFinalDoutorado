@@ -225,22 +225,22 @@ cutSmall *reduceCutFullForCutSmall(constraintsReal *constraints, int *typeIntOrF
 
 constraintsReal *runCCwithGrasp(constraintsReal *constraintsFull, int precision, char **nameConstraints, char **nameVariables, int szPoolCutsMax, int nIterationGrasp, float alpha, int minimal, int typeLifted)
 {
-    int i, j, k, itePool = 0;
-    int qnt;
+    int i, k, itePool = 0;
+    //int qnt,j;
     int c_XSolution = 0;
     int c_AuxSolution = 0;
     cutCover *cutsCover;
-    int *intOrFloat = returnVectorTypeContraintsIntOrFloat(constraintsFull);
+    int *intOrFloat = returnVectorTypeContraintsIntOrFloat(constraintsFull); //verifica se as restrições podem ser transformadas em restrições da mochila
     cutSmall *newConstraintsSmall = reduceCutFullForCutSmall(constraintsFull, intOrFloat, precision);
     cutsCover = CopyCutToCover(newConstraintsSmall);
     for (i = 0; i < cutsCover->numberConstraints; i++)
     {
         int lhs = 0;
-        for (j = newConstraintsSmall->ElementsConstraints[i]; j < newConstraintsSmall->ElementsConstraints[i + 1]; j++)
-        {
-            lhs += newConstraintsSmall->Coefficients[j];
-        }
-        if ((cutsCover->rightSide[i] <= 1) || (lhs <= cutsCover->rightSide[i]))
+        // for (j = newConstraintsSmall->ElementsConstraints[i]; j < newConstraintsSmall->ElementsConstraints[i + 1]; j++)
+        // {
+        //     lhs += newConstraintsSmall->Coefficients[j];
+        // }
+        if ((cutsCover->rightSide[i] <= 1))
         {
             continue;
         }
@@ -248,28 +248,34 @@ constraintsReal *runCCwithGrasp(constraintsReal *constraintsFull, int precision,
         c_XSolution = 0;
         int szConstraint = cutsCover->ElementsConstraints[i + 1] - cutsCover->ElementsConstraints[i];
         cutCover *cutsCoverSolution = AllocStrCover(szConstraint * szPoolCutsMax, szPoolCutsMax);
-        int *poolSolution = createCoverGraspIndividual(newConstraintsSmall, precision, i, nIterationGrasp, szPoolCutsMax, alpha, minimal, typeLifted);
+        int nPoolUsed = 0;
+        int *poolSolution = createCoverGraspIndividual(newConstraintsSmall, precision, i, nIterationGrasp, szPoolCutsMax, alpha, minimal, typeLifted, &nPoolUsed);
+        //printf("pooooolllll::%d\n", nPoolUsed);
         cutsCoverSolution->ElementsConstraints[0] = 0;
-        for (itePool = 0; itePool < szPoolCutsMax; itePool++)
+        for (itePool = 0; itePool < nPoolUsed; itePool++)
         {
-            qnt = 0;
+            //qnt = 0;
             int caux = 0;
             lhs = 0;
+            int *solutionTemp = (int *)malloc(sizeof(int) * szConstraint);
             for (k = cutsCover->ElementsConstraints[i]; k < cutsCover->ElementsConstraints[i + 1]; k++)
             {
-                qnt += poolSolution[caux + itePool * szConstraint];
+                //  qnt += poolSolution[caux + itePool * szConstraint];
+
+                solutionTemp[k - cutsCover->ElementsConstraints[i]] = poolSolution[(k - cutsCover->ElementsConstraints[i]) + itePool * szConstraint];
                 lhs += cutsCover->Coefficients[k] * poolSolution[caux + itePool * szConstraint];
                 caux++;
             }
             if (lhs <= cutsCover->rightSide[i])
             {
+                free(solutionTemp);
                 continue;
             }
-            int *solutionTemp = (int *)malloc(sizeof(int) * szConstraint);
-            for (k = 0; k < szConstraint; k++)
-            {
-                solutionTemp[k] = poolSolution[k + itePool * szConstraint];
-            }
+
+            // for (k = 0; k < szConstraint; k++)
+            // {
+            //     solutionTemp[k] = poolSolution[k + itePool * szConstraint];
+            // }
             if (typeLifted == 0)
             {
                 // printf("LCI Adam!\n");
@@ -302,13 +308,14 @@ constraintsReal *runCCwithGrasp(constraintsReal *constraintsFull, int precision,
 
             free(solutionTemp);
         }
-        int qnt_cuts_cover = 0;
+        //int qnt_cuts_cover = c_AuxSolution;
         int *idc_cover = (int *)malloc(sizeof(int) * c_AuxSolution);
-        for (j = 0; j < c_AuxSolution; j++)
-        {
-            idc_cover[j] = 1;
-            qnt_cuts_cover++;
-        }
+        //memset(idc_cover,1, sizeof(int) * c_AuxSolution);
+        // for (j = 0; j < c_AuxSolution; j++)
+        // {
+        //     idc_cover[j] = 1;
+        //     qnt_cuts_cover++;
+        // }
         constraintsFull = createCutsCoverGrasp(cutsCoverSolution, constraintsFull, newConstraintsSmall, idc_cover, i, c_AuxSolution, precision);
         free(cutsCoverSolution);
         free(idc_cover);
@@ -320,7 +327,7 @@ constraintsReal *runCCwithGrasp(constraintsReal *constraintsFull, int precision,
     return constraintsFull;
 }
 
-int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumberConstraints constraint, int numberIteration, int szPoolCutsMax, float alpha, int minimal, int typeLifted)
+int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumberConstraints constraint, int numberIteration, int szPoolCutsMax, float alpha, int minimal, int typeLifted, int *nPoolTemp)
 {
     int sz = constraintsSmall->ElementsConstraints[constraint + 1] - constraintsSmall->ElementsConstraints[constraint];
     int *solution = (int *)malloc(sizeof(int) * sz);
@@ -336,26 +343,6 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
     {
         //printf("entre 0.0 e 0.1");
         alpha = fRand(0.0, 0.1);
-        //printf("alpha: %f\n", alpha);
-    }
-    if (testAlpha == -2)
-    {
-        alpha = fRand(0.0, 0.01);
-        //printf("alpha: %f\n", alpha);
-    }
-    if (testAlpha == -3)
-    {
-        alpha = fRand(0.01, 0.015);
-        //printf("alpha: %f\n", alpha);
-    }
-    if (testAlpha == -4)
-    {
-        alpha = fRand(0.01, 0.02);
-        //printf("alpha: %f\n", alpha);
-    }
-    if (testAlpha == -5)
-    {
-        alpha = fRand(0.01, 0.05);
         //printf("alpha: %f\n", alpha);
     }
 
@@ -382,7 +369,10 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
             }
             if (verifyViolationGreedy(solFinalTemp, constraintsSmall, constraint, precision) == 1)
             {
+
                 copyAndVerifyPoolSolution(solution, sz, poolSolution, &nPoolSolution);
+                //printf("teste aqui");
+                (*nPoolTemp)++;
             }
 
             free(solFinalTemp);
@@ -398,6 +388,8 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
             if (verifyViolationGreedy(solFinalTemp, constraintsSmall, constraint, precision) == 1)
             {
                 copyAndVerifyPoolSolution(solution, sz, poolSolution, &nPoolSolution);
+                // printf("teste aqui");
+                (*nPoolTemp)++;
             }
             free(coverTemp);
 
@@ -411,26 +403,7 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
                 alpha = fRand(0.0, 0.1);
                 //printf("alpha: %f\n", alpha);
             }
-            if (testAlpha == -2)
-            {
-                alpha = fRand(0.0, 0.01);
-                //printf("alpha: %f\n", alpha);
-            }
-            if (testAlpha == -3)
-            {
-                alpha = fRand(0.01, 0.015);
-                //printf("alpha: %f\n", alpha);
-            }
-            if (testAlpha == -4)
-            {
-                alpha = fRand(0.01, 0.02);
-                //printf("alpha: %f\n", alpha);
-            }
-            if (testAlpha == -5)
-            {
-                alpha = fRand(0.01, 0.05);
-                //printf("alpha: %f\n", alpha);
-            }
+            free(solFinalTemp);
         }
     }
     else
@@ -454,12 +427,19 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
                 if (verifyViolationGreedy(solFinalTemp, constraintsSmall, constraint, precision) == 1)
                 {
                     copyAndVerifyPoolSolution(solution, sz, poolSolution, &nPoolSolution);
+                    //     printf("teste aqui");
+                    (*nPoolTemp)++;
                 }
                 free(solFinalTemp);
                 free(coverTemp);
             }
             else
             {
+                if (testAlpha == -1)
+                {
+                    alpha = fRand(0.0, 0.1);
+                    //printf("alpha: %f\n", alpha);
+                }
                 ite++;
                 continue;
             }
@@ -479,6 +459,8 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
                 if (verifyViolationGreedy(solFinalTemp, constraintsSmall, constraint, precision) == 1)
                 {
                     copyAndVerifyPoolSolution(solution, sz, poolSolution, &nPoolSolution);
+                    //printf("teste aqui");
+                    (*nPoolTemp)++;
                 }
                 free(solFinalTemp);
                 free(coverTemp);
@@ -491,26 +473,6 @@ int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumb
             if (testAlpha == -1)
             {
                 alpha = fRand(0.0, 0.1);
-                //printf("alpha: %f\n", alpha);
-            }
-            if (testAlpha == -2)
-            {
-                alpha = fRand(0.0, 0.01);
-                //printf("alpha: %f\n", alpha);
-            }
-            if (testAlpha == -3)
-            {
-                alpha = fRand(0.01, 0.015);
-                //printf("alpha: %f\n", alpha);
-            }
-            if (testAlpha == -4)
-            {
-                alpha = fRand(0.01, 0.02);
-                //printf("alpha: %f\n", alpha);
-            }
-            if (testAlpha == -5)
-            {
-                alpha = fRand(0.01, 0.05);
                 //printf("alpha: %f\n", alpha);
             }
             ite++;
@@ -667,16 +629,17 @@ constraintsReal *createCutsCoverGrasp(cutCover *cutsCover, constraintsReal *cons
     long int i = 0, j = 0, cont = 0, contConstraints = 0;
     for (i = 0; i < nCuts; i++)
     {
-        if (idc_Cover[i] == 0)
-        {
-            continue;
-        }
-         double violation = valueViolation(cutsCover, constraintsSmall, i, constraint, precision);
+        // if (idc_Cover[i] == 0)
+        // {
+        //     continue;
+        // }
+        idc_Cover[i] = 1;
+        double violation = valueViolation(cutsCover, constraintsSmall, i, constraint, precision);
         //printf("%f\n",violation);
-         if (violation == 0)
-         {
-             idc_Cover[i] = 0;
-         }
+        if (violation == 0)
+        {
+            idc_Cover[i] = 0;
+        }
         if (idc_Cover[i] == 1)
         {
             contConstraints++;
@@ -696,6 +659,7 @@ constraintsReal *createCutsCoverGrasp(cutCover *cutsCover, constraintsReal *cons
 
     constraintsReal *outCutsNew = AllocStrConstraintsReal(constraintsOriginal->cont + cont, constraintsOriginal->numberConstraints + contConstraints, constraintsOriginal->numberVariables);
     outCutsNew->ElementsConstraints[0] = constraintsOriginal->ElementsConstraints[0];
+
     for (i = 0; i < constraintsOriginal->numberConstraints; i++)
     {
         outCutsNew->rightSide[i] = constraintsOriginal->rightSide[i];
@@ -732,13 +696,35 @@ constraintsReal *createCutsCoverGrasp(cutCover *cutsCover, constraintsReal *cons
             aux++;
         }
     }
+    int **matrizIncidencia = (int **)malloc(sizeof(int *) * outCutsNew->numberConstraints);
+    for (i = 0; i < outCutsNew->numberConstraints; i++)
+    {
+        matrizIncidencia[i] = (int *)malloc(sizeof(int) * outCutsNew->numberVariables);
+        for (j = 0; j < outCutsNew->numberVariables; j++)
+        {
+            matrizIncidencia[i][j] = -1;
+        }
+        for (j = outCutsNew->ElementsConstraints[i]; j < outCutsNew->ElementsConstraints[i + 1]; j++)
+        {
+            aux = outCutsNew->Elements[j];
+            matrizIncidencia[i][aux] = outCutsNew->ElementsConstraints[i];
+        }
+    }
+
     int *validated = (int *)malloc(sizeof(int) * outCutsNew->numberConstraints);
     validated[0] = 1;
     for (i = 1; i < outCutsNew->numberConstraints; i++)
     {
-        validated[i] = verifyRepeated(outCutsNew, i);
+        validated[i] = verifyRepeatedIncidency(matrizIncidencia, outCutsNew, i);
     }
+    for (i = 0; i < outCutsNew->numberConstraints; i++)
+    {
+        free(matrizIncidencia[i]);
+    }
+    free(matrizIncidencia);
+
     cont = 0, contConstraints = 0;
+
     for (i = 0; i < outCutsNew->numberConstraints; i++)
     {
         if (validated[i] == 1)
@@ -778,6 +764,7 @@ constraintsReal *createCutsCoverGrasp(cutCover *cutsCover, constraintsReal *cons
     {
         cutsNewNoRepetead->xAsterisc[i] = outCutsNew->xAsterisc[i];
     }
+
     free(validated);
     freeStrConstraintsReal(constraintsOriginal);
     freeStrConstraintsReal(outCutsNew);

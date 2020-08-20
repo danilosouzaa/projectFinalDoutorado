@@ -3891,7 +3891,7 @@ void lp_config_grb_params(LinearProgram *lp)
 
     GRBenv *env = GRBgetenv( lp->lp );
     GRBsetintparam(env, GRB_INT_PAR_CUTS,0);
-    //GRBsetintparam(env, GRB_INT_PAR_PRESOLVE,0);
+    GRBsetintparam(env, GRB_INT_PAR_PRESOLVE,0);
     GRBsetdblparam(env, GRB_DBL_PAR_HEURISTICS,0);
     if ( lp->maxSeconds != INT_NOT_SET )
         GRBsetdblparam( env, GRB_DBL_PAR_TIMELIMIT, lp->maxSeconds);

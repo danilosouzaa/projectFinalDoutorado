@@ -12,7 +12,7 @@ int *LCIBallas(int *coverSolution, cutCover *constraintsCover, TNumberConstraint
 
 constraintsReal *runCCwithGrasp(constraintsReal *constraintsFull, int precision, char **nameConstraints, char **nameVariables, int szPoolCutsMax, int nIterationGrasp, float alpha, int minimal, int typeLifted);
 
-int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumberConstraints constraint, int numberIteration, int szPoolCutsMax, float alpha, int minimal, int typeLifted);
+int *createCoverGraspIndividual(cutSmall *constraintsSmall, int precision, TNumberConstraints constraint, int numberIteration, int szPoolCutsMax, float alpha, int minimal, int typeLifted, int *nPoolTemp);
 
 cutSmall *reduceCutFullForCutSmall(constraintsReal *constraints, int *typeIntOrFloat, int precision);
 

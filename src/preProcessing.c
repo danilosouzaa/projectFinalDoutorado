@@ -357,6 +357,7 @@ int verifyRepeatCuts(constraintsReal *constraintsOriginal, int cutOriginal, int 
 double fRand(double fMin, double fMax)
 {
     struct timeval time;
+    fflush(stdin);
     gettimeofday(&time, NULL);
     srand((time.tv_sec * 1000) + (time.tv_usec / 1000));
     double f = (double)rand() / RAND_MAX;

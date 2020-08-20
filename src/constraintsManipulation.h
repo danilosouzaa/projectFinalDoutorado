@@ -11,7 +11,10 @@ constraintsReal *AllocStrConstraintsReal(TCont cont, TNumberConstraints nConstra
 
 cutSmall *AllocStrCutSmall(TCont cont, TNumberConstraints nConstraints, TNumberVariables nVariables);
 
+constraintMin *AllocStrConstraintsMin(TCont cont);
+
 void freeStrConstraintsReal(constraintsReal *cut);
+
 
 constraintsReal *fillStructPerLP(LinearProgram *lp, char **nameConstraints, char **nameVariables, int *typeVariables, double *lbVariables, double *ubVariables);
 
@@ -42,6 +45,8 @@ cutCover *CopyCutToCover(cutSmall *h_cut);
 cutCover *AllocStrCover(TCont cont, TNumberConstraints nConstraints);
 
 int verifyRepeated(constraintsReal *originalConstraints, int posCover);
+
+int verifyRepeatedIncidency(int **matrizIncidencia, constraintsReal *originalConstraints, int posCover);
 
 double valueViolation(cutCover *cCover, cutSmall *constraintsSmall, TNumberConstraints idCover, TNumberConstraints ogConstraint, int precision);
 

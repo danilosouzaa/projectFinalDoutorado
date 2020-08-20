@@ -9,63 +9,151 @@ extern "C"
 {
     
     //#include "preProcessing.h"
-    #include "coverLifted.h"
+    //#include "coverLifted.h"
+    //#include "newGrasp.h"
     //#include "lp.h"
+    #include "lahc.h"
 }
 
 
 
 int main(int argc, const char *argv[]){
-    char nameFileInstance[255] = "../input/";
-    char nameInst[255] = "";
-    strcat(nameInst, argv[1]);
-    strcat(nameFileInstance, argv[1]);
-    double timeMax = atof(argv[2]);
-    int precision = atoi(argv[3]);
-    int typeCC = 0; // 0 - GRASP, 1 -Guloso
+    //char nameFileInstance[255] = "../input/";
+    char nameFileInstance[255] = "";
+    double timeMax;
+    int precision;
+    int i=0, cg1=0, cg2=0,cc=0,ck=0;
+    int typeCC = 0; // 0 - GRASP, 1 -Guloso 2- SA
     int typeLift = 0;//  0 - Adam Lethford 1 - Bala1s
     int minimal = 0; // 0 - no minimal 1- minimal
     int szPoolCutsMaxCC = 0;
-    int nIterationCCGrasp = 0;
-    float alpha = 0.0;
-    int i;
-    int cg1, cg2, ck, cc ; 
-    cg1 = 0;
-    cg2 = 0;
-    ck = 0;
-    ck = 0;
-    for (i = 0; i < argc; i++)
-    {
+    int nIterationCC = 0 , LFA = 0, typeSolutionInitial = 0;
+    float alpha = 0.0, tempInitial = 0.0, fatorResf = 0.0;
+    float pv1 = 0.0, pv2 = 0.0 , pv3 = 0.0, pv4 = 0.0, pv5 = 0.0;
+    int gap = 0;
+    double opt=0;
+    for(i=0;i<argc;i++){
+        if (strcmp(argv[i], "-f") == 0)
+        {
+            strcat(nameFileInstance, argv[i+1]);
+        }
+        if(strcmp(argv[i], "-t") == 0){
+            timeMax = atof(argv[i+1]);
+        }
+        if(strcmp(argv[i], "-p") == 0){
+            precision = atoi(argv[i+1]);
+        }
         if (strcmp(argv[i], "-CG1") == 0)
         {
-            cg1 = 1;
+            cg1 = atoi(argv[i+1]);
         }
         if (strcmp(argv[i], "-CG2") == 0)
         {
-            cg2 = 1;
+            cg2 = atoi(argv[i+1]);
         }
         if (strcmp(argv[i], "-CC") == 0)
         {
-            cc = 1;
-            typeCC = atoi(argv[i+1]); //0 - grasp or 1 - greedy
-            typeLift = atoi(argv[i+2]); //0 - Adam e  1 - ballas or adam
-            minimal  = atoi(argv[i+3]); // 1 - cover minimal or 0 - not minimal
-            szPoolCutsMaxCC = atoi(argv[i+4]); //size pool iterGrasp
-            nIterationCCGrasp = atof(argv[i+5]); //
-            alpha = atof(argv[i+6]);
+            cc = atoi(argv[i+1]);
+        }
+        if(strcmp(argv[i], "-h") == 0){
+            typeCC = atoi(argv[i+1]);
+        }
+        if(strcmp(argv[i], "-l") == 0){
+            typeLift = atoi(argv[i+1]);
+        }
+        if(strcmp(argv[i], "-m") == 0){
+            minimal = atoi(argv[i+1]);
+        }
+        if(strcmp(argv[i], "-sp") == 0){
+            szPoolCutsMaxCC = atoi(argv[i+1]);
+        }
+        if(strcmp(argv[i], "-i") == 0){
+            nIterationCC = atoi(argv[i+1]);
+        }
+        if(strcmp(argv[i], "-a") == 0){
+            alpha = atof(argv[i+1]);
+        }
+        if(strcmp(argv[i], "-ti") == 0){
+            tempInitial = atof(argv[i+1]);
+        }
+        if(strcmp(argv[i], "-fr") == 0){
+            fatorResf = atof(argv[i+1]);
+        }
+        if(strcmp(argv[i], "-pv1") == 0){
+            pv1 = atof(argv[i+1]);
+        }
+        if(strcmp(argv[i], "-pv2") == 0){
+            pv2 = atof(argv[i+1]);
+        }
+        if(strcmp(argv[i], "-pv3") == 0){
+            pv3 = atof(argv[i+1]);
+        }
+        if(strcmp(argv[i], "-pv4") == 0){
+            pv4 = atof(argv[i+1]);
+        }
+        if(strcmp(argv[i], "-pv5") == 0){
+            pv4 = atof(argv[i+1]);
         }
         if (strcmp(argv[i], "-CK") == 0)
         {
-            ck = 1;
+            ck = atoi(argv[i+1]);
         }
+        if (strcmp(argv[i], "-LFA") == 0)
+        {
+            LFA = atoi(argv[i+1]);
+        }
+        if (strcmp(argv[i], "-tsi") == 0)
+        {
+            typeSolutionInitial = atoi(argv[i+1]);
+        }
+        if (strcmp(argv[i], "-gap") == 0)
+        {
+            gap = atoi(argv[i+1]);
+        }
+    }
+    if(gap==1){
+        FILE *arqOpt =fopen("opt.txt","r");
+        char linha[255];
+        double optTemp=0;
+        if(arqOpt==NULL){
+            printf("Arquivo não foi encontrado");
+        }else{
+            while(!feof(arqOpt)){
+                fscanf(arqOpt,"%s %lf\n",linha,&optTemp);
+               //printf("linha: 1%s1%s1\n", linha,nameFileInstance);
+                char *p = NULL;
+                p = strstr(nameFileInstance,linha);
+                if(p){
+                    opt = optTemp;
+                    break;
+                }
+            }
+        }
+        fclose(arqOpt);
+    }
+
+    double sProbabilidade = pv1+pv2+pv3+pv4+pv5;
+    if (sProbabilidade!=0.0){
+        pv1 = pv1/sProbabilidade;
+        pv2 = pv2/sProbabilidade;
+        pv3 = pv3/sProbabilidade;
+        pv4 = pv4/sProbabilidade;
+        pv5 = pv5/sProbabilidade;
+    }else{
+        pv1 = 0.2;
+        pv2 = 0.2;
+        pv3 = 0.2;
+        pv4 = 0.2;
+        pv5 = 0.2;
     }
     int numberAux = 0, numberCutsCC = 0;
     LinearProgram *lp = lp_create();
     lp_read(lp, nameFileInstance);
     lp_set_print_messages(lp,0);
+    lp_write_lp(lp,"daniloSe.lp");
     char **nameVariables = createNameVariablesInitial(lp);// struct and name
     char **nameConstraints = createStructNameConstraintsInitial(lp);// struct
-    TNumberConstraints nConstraints = countConstraintsValided(lp);
+    // TNumberConstraints nConstraints = countConstraintsValided(lp);
     int nVariables = lp_cols(lp);
     #ifdef DEBUG
         double *sol = initialSolutionForValidation(lp);
@@ -75,7 +163,7 @@ int main(int argc, const char *argv[]){
     double *ubVariables = (double *)malloc(sizeof(double) * nVariables);
     constraintsReal *constraintsFull = fillStructPerLP(lp,nameConstraints, nameVariables,typeVariables,lbVariables, ubVariables);
     //showStructFull(constraintsFull, nameConstraints, nameVariables);
-    lp_write_lp(lp,"../output/temp.lp");
+    lp_write_lp(lp,"output/temp.lp");
   
     lp_optimize_as_continuous(lp);
     //getchar();
@@ -93,9 +181,17 @@ int main(int argc, const char *argv[]){
     int contSize = 1;
     if(typeCC==0){
         printf("Grasp\n");
-    }else{
+    }else if(typeCC==1){
         printf("Greedy\n");
+    }else if(typeCC==2){
+        printf("SA\n");
+    }else if(typeCC==3){
+        printf("GRASP 2\n");
+    }else{
+        printf("LAHC \n");
     }
+    double violationFinal  = 0;
+    double currentObjSol = iniObjSol;
     do{
     //------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------
@@ -112,14 +208,23 @@ int main(int argc, const char *argv[]){
             int numberVariablesInitial = constraintsBinary->numberVariables;
             int *convertVariables = (int *)malloc(sizeof(int) * constraintsBinary->cont);
             constraintsBinary = removeNegativeCoefficientsAndSort(constraintsBinary, convertVariables);
-            printf("ncUsed:%d\t", nConstraintsUsed);
+            //printf("ncUsed:%d\t", nConstraintsUsed);
             numberAux = constraintsBinary->numberConstraints;
             if(typeCC==0){
+                //printf("Primeiramente\n");
                 
-                constraintsBinary = runCCwithGrasp(constraintsBinary,precision,nameConstraints,nameVariables,szPoolCutsMaxCC, nIterationCCGrasp, alpha,minimal,typeLift);
-            }else{
-                
+                constraintsBinary = graspLciAdam(constraintsBinary, precision, nameConstraints, nameVariables, szPoolCutsMaxCC,nIterationCC, alpha, minimal);
+                //getchar();
+                //runCCwithGrasp(constraintsBinary,precision,nameConstraints,nameVariables,szPoolCutsMaxCC, nIterationCCGrasp, alpha,minimal,typeLift);
+
+            }else if(typeCC==1){
                 constraintsBinary = runCCGreedy(constraintsBinary,precision,nameConstraints,nameVariables,typeLift);
+            }else if(typeCC==2){
+                constraintsBinary = runCCwithSA(constraintsBinary,precision,nameConstraints,nameVariables,szPoolCutsMaxCC,nIterationCC,tempInitial,fatorResf,typeLift, minimal,pv1,pv2,pv3,pv4, &violationFinal, typeSolutionInitial);
+            }else if(typeCC==3){
+                constraintsBinary = runCCwithGrasp(constraintsBinary,precision,nameConstraints,nameVariables,szPoolCutsMaxCC, nIterationCC, alpha,minimal,typeLift);
+            }else{
+                constraintsBinary = runCCwithLAHC(constraintsBinary,precision,nameConstraints,nameVariables,szPoolCutsMaxCC,nIterationCC,LFA,typeLift,minimal,pv1,pv2,pv3,pv4,&violationFinal,typeSolutionInitial);
             }
 
             numberAux = constraintsBinary->numberConstraints - numberAux;
@@ -148,14 +253,14 @@ int main(int argc, const char *argv[]){
         // printf("Depois: %d \n", constraintsOriginal->numberConstraints);
         if (totalCuts > 0)
         {
-            printf("LCI: %d\t", totalCuts);
+            //printf("Round : %d LCI: %d\t",contSize, totalCuts);
             #ifdef DEBUG
                 insertConstraintsLPDebug(lp, constraintsFull, numberAuxConstraints, nameConstraints, verifyTest);
             #else
                 insertConstraintsLP(lp, constraintsFull, numberAuxConstraints, nameConstraints);
             #endif // DEBUG
             
-            lp_write_lp(lp, "../output/temp.lp");
+            lp_write_lp(lp, "output/temp.lp");
             lp_optimize_as_continuous(lp);
             double *xTemp = lp_x(lp);
             for (i = 0; i < constraintsFull->numberVariables; i++)
@@ -163,26 +268,26 @@ int main(int argc, const char *argv[]){
                 constraintsFull->xAsterisc[i] = xTemp[i];
                 //printf("%f\n", constraintsFull->xAsterisc[i]);
             }   
-            if( (typeCC==1) && (iniObjSol==lp_obj_value(lp)) ){
+            if( (typeCC==1) && (currentObjSol==lp_obj_value(lp)) ){
                 timeMax = 0;    
             }
-            if( iniObjSol==lp_obj_value(lp) ){
+            if( currentObjSol==lp_obj_value(lp) ){
                 contNoImprovement ++;
             }else{
                 _time = ((double)timeMax - (omp_get_wtime() - startT));
-                printf("tImp: %f\t", (omp_get_wtime() - startT));
+                //printf("tImp: %f\t", (omp_get_wtime() - startT));
                 contNoImprovement = 0;
             }
         
             //getchar();
-            iniObjSol =  lp_obj_value(lp);
-            printf("obj: %f\n", iniObjSol);
+            currentObjSol =  lp_obj_value(lp);
+            //printf("obj: %f\n", iniObjSol);
             
         }else{
-            printf("\n");
+            //printf("No Improvement\n");
             contNoImprovement++;
         }
-        if(contNoImprovement>1000){
+        if(contNoImprovement>100000){
             timeMax = 0;
         }
         #ifdef DEBUG
@@ -194,8 +299,11 @@ int main(int argc, const char *argv[]){
         _time = ((double)timeMax - (omp_get_wtime() - startT));
     //}while(_time > 1);
         contSize++;
-    }while((contSize <= 50)&&(_time>0));
-    printf("ncF: %d tF: %f \n", numberCutsCC, (omp_get_wtime() - startT));
+    }while((_time>0)&&(contSize<=50));
+    double rFinal = violationFinal/precision - 0.0001*(omp_get_wtime() - startT);
+    printf("ncF: %d tF: %f obj: %f violationA: %f  rFinal: %f \n", numberCutsCC, (omp_get_wtime() - startT), currentObjSol, violationFinal,rFinal);
+    printf("gapClosed: %lf\n", 1 -(opt-currentObjSol)/(opt-iniObjSol));
+    printf("gapClosedTimed: %lf\n", -1*(1 -(opt-currentObjSol)/(opt-iniObjSol)- 0.0001*(omp_get_wtime() - startT)));
     //------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------
     #ifdef DEBUG    
