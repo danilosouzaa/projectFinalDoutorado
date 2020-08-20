@@ -31,6 +31,7 @@ int main(int argc, const char *argv[]){
     float alpha = 0.0, tempInitial = 0.0, fatorResf = 0.0;
     float pv1 = 0.0, pv2 = 0.0 , pv3 = 0.0, pv4 = 0.0, pv5 = 0.0;
     int gap = 0;
+    int setCut = 0;
     double opt=0;
     for(i=0;i<argc;i++){
         if (strcmp(argv[i], "-f") == 0)
@@ -110,6 +111,10 @@ int main(int argc, const char *argv[]){
         {
             gap = atoi(argv[i+1]);
         }
+        if (strcmp(argv[i], "-sc") == 0)
+        {
+            setCut = atoi(argv[i+1]);
+        }
     }
     if(gap==1){
         FILE *arqOpt =fopen("opt.txt","r");
@@ -169,8 +174,9 @@ int main(int argc, const char *argv[]){
     //getchar();
     double iniObjSol = lp_obj_value(lp);
     printf("Solution initial: %f \n", iniObjSol);
-    lp_set_cuts(lp,'0');
-
+    if(setCut==0){
+        lp_set_cuts(lp,'0');
+    }
     //------------------------------------------------------------------------------------
     // Initial Time Counting
     //------------------------------------------------------------------------------------

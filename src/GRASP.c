@@ -355,12 +355,14 @@ int *buscaLocal1(int sz, cutSmall *constraintsSmall, int posConstraints, int *so
                     free(newSolution);
                     free(vNActived);
                     free(vActived);
+                    //copiar para um pool e dar um break
                     return solutionTemp;
                 }
 
             }
         }
     }
+    return NULL;
 }
 
 
